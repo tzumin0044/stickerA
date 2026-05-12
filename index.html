@@ -565,7 +565,7 @@
 
     <header>
         <div class="header-title">
-            <h1>大買家組合貼紙列印系統 (84.9x62.4mm)</h1>
+            <h1>外箱貼列印系統 (84.9x62.4mm)</h1>
         </div>
         <div class="header-actions" style="display: flex; gap: 1rem; width: 550px;">
             <button class="btn btn-danger" onclick="clearAllCards()">🗑️ 清除全部</button>
@@ -911,13 +911,18 @@
                     displayItems.push({ name: "&nbsp;", qty: "&nbsp;", unit: "&nbsp;" });
                 }
 
-                let itemsHtml = displayItems.map((item, idx) => `
-                    <div class="sticker-item-row" style="font-size: ${itemFontSize}">
-                        <div class="p-name-cell">${item.name}</div>
-                        <div style="text-align:right; padding-right: 5px;">${String(item.qty).replace(/^0+(?=\d)/, '')}</div>
-                        <div style="text-align:left">${item.unit}</div>
+                let itemsHtml = displayItems.map((item, idx) => {
+                    const isReal = idx < card.items.length;
+                    // 僅針對有品項的列顯示底線，填充的空列不顯示
+                    const borderStyle = isReal ? "" : "border-bottom: none;";
+                    return `
+                    <div class="sticker-item-row" style="font-size: ${itemFontSize}; ${borderStyle}">
+                        <div class="p-name-cell">${isReal ? item.name : '&nbsp;'}</div>
+                        <div style="text-align:right; padding-right: 5px;">${isReal ? String(item.qty).replace(/^0+(?=\d)/, '') : '&nbsp;'}</div>
+                        <div style="text-align:left">${isReal ? item.unit : '&nbsp;'}</div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 sticker.innerHTML = `
                     <div class="sticker-header" style="font-size: ${titleFontSize}">${location}</div>
