@@ -638,13 +638,25 @@
 
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @media print {
@@ -768,7 +780,7 @@
 
     <header>
         <div class="header-title">
-            <h1>外箱貼列印系統 (84.9x62.4mm)</h1>
+            <h1>大買家、大盤大、商品貼列印系統</h1>
         </div>
         <div class="header-actions" style="display: flex; gap: 1rem; width: 550px;">
             <button class="btn btn-danger" onclick="clearAllCards()">🗑️ 清除全部</button>
@@ -798,15 +810,21 @@
                 </div>
             </div>
 
-            <div class="section" style="border-top: 1px solid #334155; padding-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem;">
+            <div class="section"
+                style="border-top: 1px solid #334155; padding-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem;">
                 <div class="section-title">⚙️ 品項管理系統</div>
                 <button class="btn btn-primary" onclick="openAdminModal()">⚙️ 開啟管理後台</button>
                 <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-success" style="padding: 0.5rem;" onclick="exportProducts()" title="匯出品項為備份 JSON 檔案">📤 匯出備份</button>
-                    <button class="btn btn-success" style="padding: 0.5rem;" onclick="document.getElementById('import-file-input').click()" title="從 JSON 備份檔匯入品項">📥 匯入備份</button>
+                    <button class="btn btn-success" style="padding: 0.5rem;" onclick="exportProducts()"
+                        title="匯出品項為備份 JSON 檔案">📤 匯出備份</button>
+                    <button class="btn btn-success" style="padding: 0.5rem;"
+                        onclick="document.getElementById('import-file-input').click()" title="從 JSON 備份檔匯入品項">📥
+                        匯入備份</button>
                 </div>
-                <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importProducts(event)">
-                <button class="btn btn-danger" style="background-color: #475569; font-size: 0.75rem; padding: 4px;" onclick="resetToDefaultProducts()">🔄 重置回預設品項</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;"
+                    onchange="importProducts(event)">
+                <button class="btn btn-danger" style="background-color: #475569; font-size: 0.75rem; padding: 4px;"
+                    onclick="resetToDefaultProducts()">🔄 重置回預設品項</button>
             </div>
         </div>
 
@@ -850,7 +868,8 @@
                     </div>
                     <div class="form-group">
                         <label>單位</label>
-                        <input type="text" id="admin-item-unit" placeholder="請輸入單位，如 盒/包/袋/條/支/件/kg..." list="common-units">
+                        <input type="text" id="admin-item-unit" placeholder="請輸入單位，如 盒/包/袋/條/支/件/kg..."
+                            list="common-units">
                         <datalist id="common-units">
                             <option value="盒"></option>
                             <option value="包"></option>
@@ -871,7 +890,9 @@
                     </div>
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                         <button class="btn btn-success" id="admin-save-btn" onclick="saveProduct()">確認新增</button>
-                        <button class="btn" id="admin-cancel-btn" style="display: none; background: #475569; color: white;" onclick="resetAdminForm()">取消修改</button>
+                        <button class="btn" id="admin-cancel-btn"
+                            style="display: none; background: #475569; color: white;"
+                            onclick="resetAdminForm()">取消修改</button>
                     </div>
                 </div>
 
@@ -879,7 +900,8 @@
                 <div class="modal-list-panel">
                     <div class="modal-list-header">
                         <h3>📦 所有品項清單 (<span id="admin-total-count">0</span>)</h3>
-                        <input type="text" id="admin-search-input" placeholder="🔍 搜尋品號/品名..." oninput="renderAdminProductList()">
+                        <input type="text" id="admin-search-input" placeholder="🔍 搜尋品號/品名..."
+                            oninput="renderAdminProductList()">
                     </div>
                     <div class="admin-table-container">
                         <table class="admin-table">
@@ -1170,8 +1192,8 @@
             listBody.innerHTML = '';
 
             const indexedProducts = products.map((p, idx) => ({ ...p, originalIndex: idx }));
-            const filtered = indexedProducts.filter(p => 
-                p.name.toLowerCase().includes(search) || 
+            const filtered = indexedProducts.filter(p =>
+                p.name.toLowerCase().includes(search) ||
                 (p.code && p.code.toLowerCase().includes(search))
             );
 
@@ -1300,7 +1322,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (!Array.isArray(imported)) {
@@ -1316,7 +1338,7 @@
                     if (confirm(`確認匯入？這將會覆蓋您目前的 ${products.length} 個品項，並載入備份的 ${imported.length} 個品項！`)) {
                         products = imported;
                         localStorage.setItem('sticker-products', JSON.stringify(products));
-                        
+
                         renderProductsList();
                         if (document.getElementById('admin-modal').style.display === 'flex') {
                             renderAdminProductList();
