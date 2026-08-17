@@ -929,9 +929,9 @@
     <script>
         const initialProducts = [
             { code: "A01000115", name: "香菇條碼(400g/盒)", unit: "盒", store: "大買家" },
-            { code: "A010C0201", name: "履歷香菇(150g/盒)", unit: "盒", store: "" },
-            { code: "A010D0101", name: "小香菇(300g/包)", unit: "包", store: "大買家" },
-            { code: "A010D0101", name: "香菇〔小小〕(500g/包)", unit: "包", store: "大盤大" },
+            { code: "A010C0201", name: "履歷香菇 (150g/盒)", unit: "盒", store: "" },
+            { code: "A010D0101", name: "小香菇 (300g/包)", unit: "包", store: "大買家" },
+            { code: "A010D0101", name: "香菇［小小］(500g/包)", unit: "包", store: "大盤大" },
             { code: "A02000301", name: "有機杏鮑菇(180g/盒)", unit: "盒", store: "" },
             { code: "A0201B101", name: "杏鮑菇A(600g/包)", unit: "包", store: "大買家" },
             { code: "A020A0101", name: "杏鮑菇A(kg)", unit: "kg", store: "大盤大" },
@@ -939,8 +939,8 @@
             { code: "A020B0101", name: "杏鮑菇B(3kg/包)", unit: "包", store: "大盤大" },
             { code: "A020C0102", name: "杏鮑菇C(600g/包)", unit: "包", store: "大買家" },
             { code: "A020D0101", name: "杏鮑菇D(1KG/包)", unit: "包", store: "大買家" },
-            { code: "A03000301", name: "有機木耳(200g/盒)", unit: "盒", store: "" },
-            { code: "A04000301", name: "有機銀耳〔盒裝〕(150g/盒)", unit: "盒", store: "" },
+            { code: "A03000301", name: "有機木耳(200g/袋)", unit: "盒", store: "" },
+            { code: "A04000301", name: "有機銀耳［盒裝］(150g/盒)", unit: "盒", store: "" },
             { code: "A04000304", name: "有機銀耳(150g/袋)", unit: "袋", store: "大買家" },
             { code: "A05000301", name: "有機真空金針菇(200g/包)", unit: "包", store: "" },
             { code: "A06000304", name: "好菇道有機鴻喜菇(包)", unit: "包", store: "" },
@@ -957,8 +957,14 @@
             { code: "A250B0101", name: "乾香菇(大中)(250g/包)", unit: "包", store: "大買家" },
             { code: "A250D0101", name: "乾香菇(小鈕)(80g/包)", unit: "包", store: "大買家" },
             { code: "A290A0301", name: "有機韓小菇A(150g/盒)", unit: "盒", store: "" },
-            { code: "G02000201", name: "履歷水果彩椒(160g/盒)", unit: "盒", store: "大盤大" },
-            { code: "L030D0101", name: "真空日本山藥〔L〕(條)", unit: "條", store: "大買家" },
+            { code: "B06000301", name: "有機青花椰苗(60g/盒)", unit: "盒", store: "" },
+            { code: "B07000301", name: "有機紫高麗苗(60g/盒)", unit: "盒", store: "" },
+            { code: "B09000301", name: "有機雪豆苗(60g/盒)", unit: "盒", store: "" },
+            { code: "B10000301", name: "有機玉米苗(60g/盒)", unit: "盒", store: "" },
+            { code: "B11000301", name: "有機小麥草苗(60g/盒)", unit: "盒", store: "" },
+            { code: "B12000301", name: "有機紅莖蘿蔔苗(60g/盒)", unit: "盒", store: "" },
+            { code: "G02000201", name: "履歷水果彩椒［26托盤］(160g/盒)", unit: "盒", store: "大盤大" },
+            { code: "L030D0101", name: "真空日本山藥［L］(條)", unit: "條", store: "大買家" },
             { code: "Q02000201", name: "鮮切履歷芋頭(200g/包)", unit: "包", store: "" },
             { code: "Q03000301", name: "鮮切有機甜菜根(200g/包)", unit: "包", store: "" },
             { code: "Q05000201", name: "鮮切履歷蓮藕(150g/包)", unit: "包", store: "" },
@@ -967,15 +973,18 @@
             { code: "R07000101", name: "手剝鮮蒜仁(120g/包)", unit: "包", store: "" },
             { code: "R09000301", name: "有機酸菜(400g/包)", unit: "包", store: "" },
             { code: "R12000301", name: "有機酸白菜(400g/包)", unit: "包", store: "" },
+            { code: "T04000101", name: "貝比生菜［芝麻葉］(30g/盒)", unit: "盒", store: "" },
             { code: "", name: "蘿美(400g/包)", unit: "包", store: "" },
             { code: "", name: "美生菜(300g/包)", unit: "包", store: "" },
             { code: "", name: "櫛瓜M", unit: "支", store: "" },
             { code: "", name: "日本紅春香地瓜S(5kg/件)", unit: "件", store: "" }
         ];
 
-        // 檢查並初始化 LocalStorage 產品資料
-        if (!localStorage.getItem('sticker-products')) {
+        // 檢查並初始化 LocalStorage 產品資料 (連動更新版本號)
+        const DATA_VERSION = '20260817';
+        if (!localStorage.getItem('sticker-products-ver') || localStorage.getItem('sticker-products-ver') !== DATA_VERSION) {
             localStorage.setItem('sticker-products', JSON.stringify(initialProducts));
+            localStorage.setItem('sticker-products-ver', DATA_VERSION);
         }
 
         let products = JSON.parse(localStorage.getItem('sticker-products'));
@@ -1356,7 +1365,7 @@
         }
 
         function resetToDefaultProducts() {
-            if (confirm("確定要重置為預設的 43 個品項嗎？這將會清除您所有的自定義新增與修改！")) {
+            if (confirm(`確定要重置為預設的 ${initialProducts.length} 個品項嗎？這將會清除您所有的自定義新增與修改！`)) {
                 localStorage.setItem('sticker-products', JSON.stringify(initialProducts));
                 products = [...initialProducts];
                 renderProductsList();
