@@ -707,27 +707,34 @@
             }
 
             .sticker-header {
-                font-size: 1.3rem;
-                font-weight: bold;
-                border-bottom: 2px solid black;
-                padding-bottom: 5px;
-                margin-bottom: 8px;
-                text-align: center;
-            }
-
-            .sticker-header {
                 height: 15%;
                 font-weight: bold;
                 border-bottom: 2.5px solid black;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1.5mm;
+                margin: 0;
+                box-sizing: border-box;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            .sticker-header .header-location {
+                font-size: 1.25rem;
+                font-weight: bold;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0;
-                padding: 0;
+            }
+
+            .sticker-header .header-package {
+                font-size: 1.2rem;
+                font-weight: bold;
+                white-space: nowrap;
+                flex-shrink: 0;
+                margin-left: 6px;
+                letter-spacing: 0.5px;
             }
 
             .sticker-items-list {
@@ -807,6 +814,15 @@
                 <div class="form-group">
                     <label>到貨日期</label>
                     <input type="date" id="input-date" onchange="renderCards()">
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                        <label style="margin-bottom: 0;">出貨總件數</label>
+                        <label style="font-size: 0.75rem; color: #818cf8; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="勾選時依有效卡片數自動計算">
+                            <input type="checkbox" id="auto-total-toggle" checked onchange="toggleAutoTotal()" style="width: auto; cursor: pointer;"> 自動連動
+                        </label>
+                    </div>
+                    <input type="number" id="input-total-packages" min="1" placeholder="自動計算中..." oninput="onManualTotalInput()" style="color: var(--accent); font-weight: bold;">
                 </div>
             </div>
 
@@ -1078,11 +1094,58 @@
             });
         }
 
+        function toggleAutoTotal() {
+            const isAuto = document.getElementById('auto-total-toggle').checked;
+            const input = document.getElementById('input-total-packages');
+            if (isAuto) {
+                input.disabled = true;
+                input.style.opacity = '0.7';
+            } else {
+                input.disabled = false;
+                input.style.opacity = '1';
+                input.focus();
+                input.select();
+            }
+            renderCards();
+        }
+
+        function onManualTotalInput() {
+            renderCards();
+        }
+
+        function updateCardSeq(cardId, val) {
+            const card = cards.find(c => c.id === cardId);
+            if (card) {
+                card.customSeq = val;
+            }
+        }
+
         function renderCards() {
             const container = document.getElementById('cards-container');
             const location = document.getElementById('select-location').value;
             const date = document.getElementById('input-date').value.replace(/-/g, '/');
             container.innerHTML = '';
+
+            const validCards = cards.filter(c => c.items.length > 0);
+            const isAutoTotal = document.getElementById('auto-total-toggle') ? document.getElementById('auto-total-toggle').checked : true;
+            const totalInput = document.getElementById('input-total-packages');
+            
+            let totalPackages;
+            if (isAutoTotal) {
+                totalPackages = validCards.length > 0 ? validCards.length : cards.length;
+                if (totalInput) {
+                    totalInput.value = totalPackages;
+                    totalInput.disabled = true;
+                    totalInput.style.opacity = '0.7';
+                }
+            } else {
+                const manualVal = totalInput ? parseInt(totalInput.value, 10) : 0;
+                totalPackages = manualVal > 0 ? manualVal : (validCards.length > 0 ? validCards.length : cards.length);
+                if (totalInput) {
+                    totalInput.disabled = false;
+                    totalInput.style.opacity = '1';
+                }
+            }
 
             cards.forEach((card, idx) => {
                 const cardEl = document.createElement('div');
@@ -1095,6 +1158,8 @@
                 let itemSize = "12pt";
                 let itemPad = "2px 0";
                 let itemLineHeight = "2";
+
+                const cardSeq = (card.customSeq !== undefined && card.customSeq !== '') ? card.customSeq : (idx + 1);
 
                 let itemsHtml = card.items.map((item, idx) => `
                     <div class="card-item-row" style="padding: ${itemPad}; line-height: ${itemLineHeight}; border-bottom: 1px solid #eee;" onclick="event.stopPropagation()">
@@ -1117,7 +1182,12 @@
                     </div>
                     <div class="card-header">
                         <span><span style="color:var(--accent)">#${idx + 1}</span> ${location}</span>
-                        <span style="background: var(--primary); font-size: 0.75rem; padding: 2px 8px; border-radius: 20px;">${card.items.length} 品項</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.8rem; background: #0f172a; border: 1px solid #334155; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center;" title="可直接手動修改此張貼紙件號">
+                                第 <input type="number" min="1" value="${cardSeq}" style="width: 44px; padding: 1px 2px; font-size: 0.85rem; text-align: center; background: #1e293b; border: 1px solid var(--primary); border-radius: 3px; color: #38bdf8; font-weight: bold; margin: 0 3px;" onclick="event.stopPropagation()" oninput="updateCardSeq(${card.id}, this.value)"> / ${totalPackages} 件
+                            </span>
+                            <span style="background: var(--primary); font-size: 0.75rem; padding: 2px 8px; border-radius: 20px;">${card.items.length} 品項</span>
+                        </div>
                     </div>
                     <div class="card-items-list" style="overflow-y:auto">${itemsHtml || '<div style="color:#94a3b8; text-align:center; margin: 30px 0; font-size: 0.9rem;">✨ 請由左側品項清單點選加入</div>'}</div>
                     <div class="card-footer">到貨日期：${date}</div>
@@ -1390,13 +1460,22 @@
             const date = document.getElementById('input-date').value.replace(/-/g, '/');
             const container = document.getElementById('print-container');
             container.innerHTML = '';
-            cards.forEach((card) => {
-                if (card.items.length === 0) return;
+
+            const validCards = cards.filter(c => c.items.length > 0);
+            if (validCards.length === 0) return alert("沒有內容可列印 (請至少在貼紙中加入 1 個品項)");
+
+            const isAutoTotal = document.getElementById('auto-total-toggle') ? document.getElementById('auto-total-toggle').checked : true;
+            const manualTotalVal = parseInt(document.getElementById('input-total-packages')?.value, 10);
+            const totalPackages = (!isAutoTotal && manualTotalVal > 0) ? manualTotalVal : validCards.length;
+
+            validCards.forEach((card, idx) => {
                 const sticker = document.createElement('div');
                 sticker.className = 'sticker';
 
-                // 固定為 6 項平均分配的字體設定
-                let titleFontSize = "18pt";
+                const currentPkg = (card.customSeq !== undefined && card.customSeq !== '' && parseInt(card.customSeq, 10) > 0)
+                    ? parseInt(card.customSeq, 10)
+                    : (idx + 1);
+
                 let itemFontSize = "12pt"; // 再縮小 5%
 
                 // 準備 6 行資料，不足補空列
@@ -1422,14 +1501,16 @@
                 }).join('');
 
                 sticker.innerHTML = `
-                    <div class="sticker-header" style="font-size: ${titleFontSize}">${location}</div>
+                    <div class="sticker-header">
+                        <span class="header-location">${location}</span>
+                        <span class="header-package">第 ${currentPkg} / ${totalPackages} 件</span>
+                    </div>
                     <div class="sticker-items-list">${itemsHtml}</div>
-                    <div class="sticker-footer" style="font-size: ${titleFontSize}">到貨日期：${date}</div>
+                    <div class="sticker-footer" style="font-size: 16pt">到貨日期：${date}</div>
                 `;
                 container.appendChild(sticker);
             });
             autoScaleFont('.p-name-cell');
-            if (container.innerHTML === '') return alert("沒有內容可列印");
             window.print();
         }
         function autoScaleFont(selector) {
